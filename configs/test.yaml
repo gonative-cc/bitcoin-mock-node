@@ -1,8 +1,0 @@
-utxos:
-  bc1qefx9kp83pf37ddrnweedhktsshurszf5egq5as:  # list of UTXOs assigned to that address
-     #  list of pairs (UTXO id, how much BTC is there)
-     - [7e5cca863d42607d234a9fdb03e60d5e21889d922b6b2dccf17c347a996a3ec9#output-1, 0.0001]
-     - [7e5cca863d42607d234a9fdb03e60d5e21889d922b6b2dccf17c347a996a3ec9#output-2, 15]
-
-block_headers:
-    - list of block headers
