@@ -1,0 +1,87 @@
+{
+    "utxos": [
+        {
+            "address": "bc1qefx9kp83pf37ddrnweedhktsshurszf5egq5as",
+            "utxos": [
+                {
+                    "txid": "7e5cca863d42607d234a9fdb03e60d5e21889d922b6b2dccf17c347a996a3ec9",
+                    "outid": "output-1",
+                    "amount": 0.0001
+                },
+                {
+                    "txid": "7e5cca863d42607d234a9fdb03e60d5e21889d922b6b2dccf17c347a996a3ec9",
+                    "outid": "output-2",
+                    "amount": 15
+                }
+            ]
+        }
+    ],
+    "block_headers": [
+        {
+            "hash": "000000000000000000000b18812f1a345af3ff3cc5a9a6176f38f55bba8f9fc8",
+            "confirmations": 427,
+            "height": 865174,
+            "version": 905969664,
+            "versionHex": "36000000",
+            "merkleroot": "0869841e25c52116faf0f5a2433b0a5ac95f85795953593afba5b17f552e4611",
+            "time": 1728646068,
+            "mediantime": 1728643719,
+            "nonce": 3559301701,
+            "bits": "17030ecd",
+            "difficulty": 92049594548485.47,
+            "chainwork": "00000000000000000000000000000000000000009353c456ef7ad099b891e269",
+            "nTx": 5608,
+            "previousblockhash": "0000000000000000000133072563d70cbddf0e36bd948ad7361ccabf350787e8",
+            "nextblockhash": "000000000000000000007b039af92192049df8e96b128e5534d6be54f1245033"
+        },
+        {
+            "hash": "000000000000000000000b18812f1a345af3ff3cc5a9a6176f38f55bba8f9fc8",
+            "confirmations": 427,
+            "height": 865174,
+            "version": 905969664,
+            "versionHex": "36000000",
+            "merkleroot": "0869841e25c52116faf0f5a2433b0a5ac95f85795953593afba5b17f552e4611",
+            "time": 1728646068,
+            "mediantime": 1728643719,
+            "nonce": 3559301701,
+            "bits": "17030ecd",
+            "difficulty": 92049594548485.47,
+            "chainwork": "00000000000000000000000000000000000000009353c456ef7ad099b891e269",
+            "nTx": 5608,
+            "previousblockhash": "0000000000000000000133072563d70cbddf0e36bd948ad7361ccabf350787e8",
+            "nextblockhash": "000000000000000000007b039af92192049df8e96b128e5534d6be54f1245033"
+        },
+        {
+            "hash": "000000000000000000000b18812f1a345af3ff3cc5a9a6176f38f55bba8f9fc8",
+            "confirmations": 427,
+            "height": 865174,
+            "version": 905969664,
+            "versionHex": "36000000",
+            "merkleroot": "0869841e25c52116faf0f5a2433b0a5ac95f85795953593afba5b17f552e4611",
+            "time": 1728646068,
+            "mediantime": 1728643719,
+            "nonce": 3559301701,
+            "bits": "17030ecd",
+            "difficulty": 92049594548485.47,
+            "chainwork": "00000000000000000000000000000000000000009353c456ef7ad099b891e269",
+            "nTx": 5608,
+            "previousblockhash": "0000000000000000000133072563d70cbddf0e36bd948ad7361ccabf350787e8",
+            "nextblockhash": "000000000000000000007b039af92192049df8e96b128e5534d6be54f1245033"
+        }
+    ],
+    "transactions": [
+        {
+            "txid": "",
+            "block_height": ""
+        },
+        {
+            "txid": "",
+            "block_height": ""
+        }
+    ],
+    "accounts": [
+        "bc1qf9xxy7m3f8z0ny7kl038ppet2er4kjnmshutcq",
+        "bc1qf9xxy7m3f8z0ny7kl038ppet2er4kjnmshutcq",
+        "bc1qf9xxy7m3f8z0ny7kl038ppet2er4kjnmshutcq"
+    ]
+}
