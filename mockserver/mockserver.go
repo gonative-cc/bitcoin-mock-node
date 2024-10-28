@@ -1,6 +1,7 @@
 package mockserver
 
 import (
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/btcsuite/btcd/btcjson"
@@ -98,6 +99,43 @@ func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*BlockHea
 // ) (*btcjson.GetBlockStatsResult, error) {
 // 	return in
 // }
+
+func (h *MockServerHandler) GetTxOut(
+	txHash *chainhash.Hash,
+	index uint32,
+	mempool bool,
+) (*btcjson.GetTxOutResult, error) {
+	txHashString := txHash.String()
+	voutIndex := index
+
+	// find the transaction with hash `txHash`
+	for _, transaction := range h.DataStore.DataContent.Transactions {
+		if transaction.TxId.String() == txHashString {
+			if voutIndex >= uint32(len(transaction.VOut)) {
+				return nil, &btcjson.RPCError{
+					Code: btcjson.ErrRPCInvalidTxVout,
+					Message: "Output index number (vout) does not " +
+						"exist for transaction.",
+				}
+			}
+
+			txOut := &btcjson.GetTxOutResult{
+				BestBlock:     "", // latest block not in data/ file
+				Confirmations: int64(transaction.Confirmations),
+				Value:         transaction.VOut[voutIndex].Value,
+				ScriptPubKey:  transaction.VOut[voutIndex].ScriptPubKey,
+				Coinbase:      true, // not available in v1 "vout"
+			}
+			return txOut, nil
+		}
+	}
+
+	// if no txn found, return error
+	return nil, btcjson.NewRPCError(
+		btcjson.ErrRPCNoTxInfo,
+		fmt.Sprintf("No information available about transaction %v", txHash),
+	)
+}
 
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
 func NewMockRPCServer() *httptest.Server {
