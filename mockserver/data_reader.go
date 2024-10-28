@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
 
@@ -38,12 +37,20 @@ type Transaction struct {
 	Weight        int32          `json:"weight"`
 	LockTime      uint32         `json:"locktime"`
 	VIn           []Vin          `json:"vin"`
-	VOut          []btcjson.Vout `json:"vout"`
+	VOut          []Vout         `json:"vout"`
 	Hex           string         `json:"hex"`
 	BlockHash     chainhash.Hash `json:"blockhash"`
 	Confirmations uint32         `json:"confirmations"`
 	Time          uint32         `json:"time"`
 	BlockTime     uint32         `json:"blocktime"`
+}
+
+// Vout models parts of the tx data.  It is defined separately since both
+// getrawtransaction and decoderawtransaction use the same structure.
+type Vout struct {
+	Value        float64            `json:"value"`
+	N            uint32             `json:"n"`
+	ScriptPubKey ScriptPubKeyResult `json:"scriptPubKey"`
 }
 
 // copied from btcjson/chainsvrresults.go and
@@ -55,6 +62,27 @@ type Vin struct {
 	// ScriptSig *ScriptSig `json:"scriptSig"`
 	Sequence uint32 `json:"sequence"`
 	// Witness  []string `json:"txinwitness"`
+}
+
+// GetTxOutResult models the data from the gettxout command.
+type GetTxOutResult struct {
+	BestBlock     string             `json:"bestblock"`
+	Confirmations int64              `json:"confirmations"`
+	Value         float64            `json:"value"`
+	ScriptPubKey  ScriptPubKeyResult `json:"scriptPubKey"`
+	Coinbase      bool               `json:"coinbase"`
+}
+
+// ScriptPubKeyResult models the scriptPubKey data of a tx script.  It is
+// defined separately since it is used by multiple commands.
+type ScriptPubKeyResult struct {
+	Asm       string   `json:"asm"`
+	Hex       string   `json:"hex,omitempty"`
+	Desc      string   `json:"desc"`
+	ReqSigs   int32    `json:"reqSigs,omitempty"` // Deprecated: removed in Bitcoin Core
+	Type      string   `json:"type"`
+	Address   string   `json:"address,omitempty"`
+	Addresses []string `json:"addresses,omitempty"` // Deprecated: removed in Bitcoin Core
 }
 
 type DataContent struct {
