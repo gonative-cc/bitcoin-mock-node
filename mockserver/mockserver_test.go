@@ -73,6 +73,11 @@ func TestMockRPCServer(t *testing.T) {
 		assert.Equal(t, actualBlockHash, blockHash)
 	})
 
+	t.Run("GetBlockHashError", func(t *testing.T) {
+		_, err := client_handler.GetBlockHash(15)
+		assert.Error(t, err)
+	})
+
 	t.Run("GetBlockHeader", func(t *testing.T) {
 		blockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444")
 		assert.NoError(t, err)
@@ -109,5 +114,13 @@ func TestMockRPCServer(t *testing.T) {
 		}
 
 		assert.Equal(t, actualBlockHeader, blockHeader)
+	})
+
+	t.Run("GetBlockHeaderError", func(t *testing.T) {
+		blockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89222")
+		assert.NoError(t, err)
+
+		_, err = client_handler.GetBlockHeader(blockHash)
+		assert.Error(t, err)
 	})
 }
