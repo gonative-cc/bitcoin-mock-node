@@ -3,6 +3,7 @@ package mockserver
 import (
 	"net/http/httptest"
 
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/filecoin-project/go-jsonrpc"
 )
@@ -63,23 +64,32 @@ func (h *MockServerHandler) GetBlockCount() (int64, error) {
 
 func (h *MockServerHandler) GetBlockHash(blockHeight int64) (*chainhash.Hash, error) {
 	// get chainHash of block with blockHeight
-	blockHash := h.DataStore.DataContent.BlockHeaders[blockHeight].BlockHash
-	return &blockHash, nil
+	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+		if blockHeader.Height == blockHeight {
+			return &blockHeader.BlockHash, nil
+		}
+	}
+
+	return nil, &btcjson.RPCError{
+		Code:    btcjson.ErrRPCOutOfRange,
+		Message: "Block number out of range",
+	}
 }
 
 func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*BlockHeader, error) {
 	blockHashString := blockHash.String()
 
 	// find the block with hash `blockHash`
-	blockIndex := 0
-	for index, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
 		if blockHeader.BlockHash.String() == blockHashString {
-			blockIndex = index
+			return &blockHeader, nil
 		}
 	}
 
-	blockHeader := h.DataStore.DataContent.BlockHeaders[blockIndex]
-	return &blockHeader, nil
+	return nil, &btcjson.RPCError{
+		Code:    btcjson.ErrRPCBlockNotFound,
+		Message: "Block not found",
+	}
 }
 
 // func (h *MockServerHandler) GetBlockStats(
