@@ -15,6 +15,7 @@ type Client struct {
 	GetBlockCount    func() (int64, error)
 	GetBlockHash     func(blockHeight int64) (*chainhash.Hash, error)
 	GetBlockHeader   func(blockHash *chainhash.Hash) (*BlockHeader, error)
+	GetTxOut         func(txHash *chainhash.Hash, index uint32, mempool bool) (*GetTxOutResult, error)
 }
 
 // setup initializes the test instance and sets up common resources.
@@ -122,5 +123,29 @@ func TestMockRPCServer(t *testing.T) {
 
 		_, err = client_handler.GetBlockHeader(blockHash)
 		assert.Error(t, err)
+	})
+
+	t.Run("GetTxOut", func(t *testing.T) {
+		txnHash, err := chainhash.NewHashFromStr("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098")
+		assert.NoError(t, err)
+
+		txOut, err := client_handler.GetTxOut(txnHash, 0, false)
+		assert.NoError(t, err)
+
+		actualTxOut := &GetTxOutResult{
+			BestBlock:     "",
+			Confirmations: 867743,
+			Value:         50,
+			ScriptPubKey: ScriptPubKeyResult{
+				Asm:  "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee OP_CHECKSIG",
+				Desc: "pk(0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee)#qnv32gt7",
+				Hex:  "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac",
+				Type: "pubkey",
+			},
+			Coinbase: true,
+		}
+		assert.NoError(t, err)
+
+		assert.Equal(t, actualTxOut, txOut)
 	})
 }

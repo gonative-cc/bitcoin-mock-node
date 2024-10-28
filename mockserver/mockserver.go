@@ -104,7 +104,7 @@ func (h *MockServerHandler) GetTxOut(
 	txHash *chainhash.Hash,
 	index uint32,
 	mempool bool,
-) (*btcjson.GetTxOutResult, error) {
+) (*GetTxOutResult, error) {
 	txHashString := txHash.String()
 	voutIndex := index
 
@@ -119,7 +119,7 @@ func (h *MockServerHandler) GetTxOut(
 				}
 			}
 
-			txOut := &btcjson.GetTxOutResult{
+			txOut := &GetTxOutResult{
 				BestBlock:     "", // latest block not in data/ file
 				Confirmations: int64(transaction.Confirmations),
 				Value:         transaction.VOut[voutIndex].Value,
