@@ -78,11 +78,9 @@ func (h *MockServerHandler) GetBlockHash(blockHeight int64) (*chainhash.Hash, er
 }
 
 func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*BlockHeader, error) {
-	blockHashString := blockHash.String()
-
 	// find the block with hash `blockHash`
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
-		if blockHeader.BlockHash.String() == blockHashString {
+		if blockHeader.BlockHash.IsEqual(blockHash) {
 			return &blockHeader, nil
 		}
 	}
@@ -105,12 +103,11 @@ func (h *MockServerHandler) GetTxOut(
 	index uint32,
 	mempool bool,
 ) (*GetTxOutResult, error) {
-	txHashString := txHash.String()
 	voutIndex := index
 
 	// find the transaction with hash `txHash`
 	for _, transaction := range h.DataStore.DataContent.Transactions {
-		if transaction.TxId.String() == txHashString {
+		if transaction.TxId.IsEqual(txHash) {
 			if voutIndex >= uint32(len(transaction.VOut)) {
 				return nil, &btcjson.RPCError{
 					Code: btcjson.ErrRPCInvalidTxVout,
