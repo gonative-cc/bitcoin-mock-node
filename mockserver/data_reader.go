@@ -92,6 +92,9 @@ type DataContent struct {
 
 type DataStore struct {
 	DataContent DataContent
+
+	BlockHeaderMap map[int64]BlockHeader
+	TransactionMap map[string]Transaction
 }
 
 func (d *DataStore) ReadJson(jsonFilePath string) {
@@ -111,6 +114,18 @@ func (d *DataStore) ReadJson(jsonFilePath string) {
 	var dataContent DataContent
 	if err := json.Unmarshal(byteValue, &dataContent); err != nil {
 		log.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
+
+	// populate the BlockHeaderMap from dataContent
+	d.BlockHeaderMap = make(map[int64]BlockHeader)
+	for _, blockHeader := range dataContent.BlockHeaders {
+		d.BlockHeaderMap[blockHeader.Height] = blockHeader
+	}
+
+	// populate the TransactionMap from dataContent
+	d.TransactionMap = make(map[string]Transaction)
+	for _, transaction := range dataContent.Transactions {
+		d.TransactionMap[transaction.TxId.String()] = transaction
 	}
 
 	d.DataContent = dataContent

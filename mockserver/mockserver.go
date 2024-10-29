@@ -65,10 +65,8 @@ func (h *MockServerHandler) GetBlockCount() (int64, error) {
 
 func (h *MockServerHandler) GetBlockHash(blockHeight int64) (*chainhash.Hash, error) {
 	// get chainHash of block with blockHeight
-	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
-		if blockHeader.Height == blockHeight {
-			return &blockHeader.BlockHash, nil
-		}
+	if blockHeader, ok := h.DataStore.BlockHeaderMap[blockHeight]; ok {
+		return &blockHeader.BlockHash, nil
 	}
 
 	return nil, &btcjson.RPCError{
@@ -106,25 +104,23 @@ func (h *MockServerHandler) GetTxOut(
 	voutIndex := index
 
 	// find the transaction with hash `txHash`
-	for _, transaction := range h.DataStore.DataContent.Transactions {
-		if transaction.TxId.IsEqual(txHash) {
-			if voutIndex >= uint32(len(transaction.VOut)) {
-				return nil, &btcjson.RPCError{
-					Code: btcjson.ErrRPCInvalidTxVout,
-					Message: "Output index number (vout) does not " +
-						"exist for transaction.",
-				}
+	if transaction, ok := h.DataStore.TransactionMap[txHash.String()]; ok {
+		if voutIndex >= uint32(len(transaction.VOut)) {
+			return nil, &btcjson.RPCError{
+				Code: btcjson.ErrRPCInvalidTxVout,
+				Message: "Output index number (vout) does not " +
+					"exist for transaction.",
 			}
-
-			txOut := &GetTxOutResult{
-				BestBlock:     "", // latest block not in data/ file
-				Confirmations: int64(transaction.Confirmations),
-				Value:         transaction.VOut[voutIndex].Value,
-				ScriptPubKey:  transaction.VOut[voutIndex].ScriptPubKey,
-				Coinbase:      true, // not available in v1 "vout"
-			}
-			return txOut, nil
 		}
+
+		txOut := &GetTxOutResult{
+			BestBlock:     "", // latest block not in data/ file
+			Confirmations: int64(transaction.Confirmations),
+			Value:         transaction.VOut[voutIndex].Value,
+			ScriptPubKey:  transaction.VOut[voutIndex].ScriptPubKey,
+			Coinbase:      true, // not available in v1 "vout"
+		}
+		return txOut, nil
 	}
 
 	// if no txn found, return error
