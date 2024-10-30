@@ -50,10 +50,6 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 // 	return in
 // }
 
-// func (h *MockServerHandler) GetBlockChainInfo() (*btcjson.GetBlockChainInfoResult, error) {
-// 	return in
-// }
-
 func (h *MockServerHandler) GetBlockCount() (int32, error) {
 	// find the highest block height
 	maxHeight := h.DataStore.DataContent.BlockHeaders[0].Height
@@ -63,13 +59,6 @@ func (h *MockServerHandler) GetBlockCount() (int32, error) {
 
 	return maxHeight, nil
 }
-
-// func (h *MockServerHandler) GetBlockFilter(
-// 	blockHash chainhash.Hash,
-// 	filterType *btcjson.FilterTypeName,
-// ) (*btcjson.GetBlockFilterResult, error) {
-// 	return in
-// }
 
 func (h *MockServerHandler) GetBlockHash(blockHeight int32) (*chainhash.Hash, error) {
 	// get chainHash of block with blockHeight
@@ -104,23 +93,16 @@ func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*btcjson.
 	}
 }
 
-// func (h *MockServerHandler) GetBlockStats(
-// 	hashOrHeight interface{},
-// 	stats *[]string,
-// ) (*btcjson.GetBlockStatsResult, error) {
-// 	return in
-// }
-
 func (h *MockServerHandler) GetTxOut(
 	txHash *chainhash.Hash,
 	index uint32,
 	mempool bool,
-) (*GetTxOutResult, error) {
+) (*btcjson.GetTxOutResult, error) {
 	voutIndex := index
 
 	// find the transaction with hash `txHash`
 	if transaction, ok := h.DataStore.TransactionMap[txHash.String()]; ok {
-		if voutIndex >= uint32(len(transaction.VOut)) {
+		if voutIndex >= uint32(len(transaction.Vout)) {
 			return nil, &btcjson.RPCError{
 				Code: btcjson.ErrRPCInvalidTxVout,
 				Message: "Output index number (vout) does not " +
@@ -128,11 +110,11 @@ func (h *MockServerHandler) GetTxOut(
 			}
 		}
 
-		txOut := &GetTxOutResult{
+		txOut := &btcjson.GetTxOutResult{
 			BestBlock:     "", // latest block not in data/ file
 			Confirmations: int64(transaction.Confirmations),
-			Value:         transaction.VOut[voutIndex].Value,
-			ScriptPubKey:  transaction.VOut[voutIndex].ScriptPubKey,
+			Value:         transaction.Vout[voutIndex].Value,
+			ScriptPubKey:  transaction.Vout[voutIndex].ScriptPubKey,
 			Coinbase:      true, // not available in v1 "vout"
 		}
 		return txOut, nil

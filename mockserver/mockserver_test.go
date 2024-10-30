@@ -16,7 +16,7 @@ type Client struct {
 	GetBlockCount    func() (int64, error)
 	GetBlockHash     func(blockHeight int64) (*chainhash.Hash, error)
 	GetBlockHeader   func(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error)
-	GetTxOut         func(txHash *chainhash.Hash, index uint32, mempool bool) (*GetTxOutResult, error)
+	GetTxOut         func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
 }
 
 // setup initializes the test instance and sets up common resources.
@@ -123,13 +123,12 @@ func TestMockRPCServer(t *testing.T) {
 		txOut, err := client_handler.GetTxOut(txnHash, 0, false)
 		assert.NoError(t, err)
 
-		actualTxOut := &GetTxOutResult{
+		actualTxOut := &btcjson.GetTxOutResult{
 			BestBlock:     "",
 			Confirmations: 867743,
 			Value:         50,
-			ScriptPubKey: ScriptPubKeyResult{
+			ScriptPubKey: btcjson.ScriptPubKeyResult{
 				Asm:  "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee OP_CHECKSIG",
-				Desc: "pk(0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee)#qnv32gt7",
 				Hex:  "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac",
 				Type: "pubkey",
 			},

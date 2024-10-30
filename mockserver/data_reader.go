@@ -7,76 +7,18 @@ import (
 	"os"
 
 	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
-
-type Transaction struct {
-	TxId          chainhash.Hash `json:"txid"`
-	Hash          chainhash.Hash `json:"hash"`
-	Version       int32          `json:"version"`
-	Size          int32          `json:"size"`
-	VSize         int32          `json:"vsize"`
-	Weight        int32          `json:"weight"`
-	LockTime      uint32         `json:"locktime"`
-	VIn           []Vin          `json:"vin"`
-	VOut          []Vout         `json:"vout"`
-	Hex           string         `json:"hex"`
-	BlockHash     chainhash.Hash `json:"blockhash"`
-	Confirmations uint32         `json:"confirmations"`
-	Time          uint32         `json:"time"`
-	BlockTime     uint32         `json:"blocktime"`
-}
-
-// Vout models parts of the tx data.  It is defined separately since both
-// getrawtransaction and decoderawtransaction use the same structure.
-type Vout struct {
-	Value        float64            `json:"value"`
-	N            uint32             `json:"n"`
-	ScriptPubKey ScriptPubKeyResult `json:"scriptPubKey"`
-}
-
-// copied from btcjson/chainsvrresults.go and
-// modified to be compatible with bitcoin v1
-type Vin struct {
-	Coinbase string `json:"coinbase"`
-	// Txid      string     `json:"txid"`
-	// Vout      uint32     `json:"vout"`
-	// ScriptSig *ScriptSig `json:"scriptSig"`
-	Sequence uint32 `json:"sequence"`
-	// Witness  []string `json:"txinwitness"`
-}
-
-// GetTxOutResult models the data from the gettxout command.
-type GetTxOutResult struct {
-	BestBlock     string             `json:"bestblock"`
-	Confirmations int64              `json:"confirmations"`
-	Value         float64            `json:"value"`
-	ScriptPubKey  ScriptPubKeyResult `json:"scriptPubKey"`
-	Coinbase      bool               `json:"coinbase"`
-}
-
-// ScriptPubKeyResult models the scriptPubKey data of a tx script.  It is
-// defined separately since it is used by multiple commands.
-type ScriptPubKeyResult struct {
-	Asm       string   `json:"asm"`
-	Hex       string   `json:"hex,omitempty"`
-	Desc      string   `json:"desc"`
-	ReqSigs   int32    `json:"reqSigs,omitempty"` // Deprecated: removed in Bitcoin Core
-	Type      string   `json:"type"`
-	Address   string   `json:"address,omitempty"`
-	Addresses []string `json:"addresses,omitempty"` // Deprecated: removed in Bitcoin Core
-}
 
 type DataContent struct {
 	BlockHeaders []btcjson.GetBlockHeaderVerboseResult `json:"block_headers"`
-	Transactions []Transaction                         `json:"transactions"`
+	Transactions []btcjson.TxRawResult                 `json:"transactions"`
 }
 
 type DataStore struct {
 	DataContent DataContent
 
 	BlockHeaderMap map[int32]btcjson.GetBlockHeaderVerboseResult
-	TransactionMap map[string]Transaction
+	TransactionMap map[string]btcjson.TxRawResult
 }
 
 func (d *DataStore) ReadJson(jsonFilePath string) {
@@ -105,9 +47,9 @@ func (d *DataStore) ReadJson(jsonFilePath string) {
 	}
 
 	// populate the TransactionMap from dataContent
-	d.TransactionMap = make(map[string]Transaction)
+	d.TransactionMap = make(map[string]btcjson.TxRawResult)
 	for _, transaction := range dataContent.Transactions {
-		d.TransactionMap[transaction.TxId.String()] = transaction
+		d.TransactionMap[transaction.Txid] = transaction
 	}
 
 	d.DataContent = dataContent
