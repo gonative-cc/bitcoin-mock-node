@@ -34,8 +34,16 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 	}
 
 	// get chainHash of block with max height
-	maxheightHash := h.DataStore.DataContent.BlockHeaders[maxHeightIndex].BlockHash
-	return &maxheightHash, nil
+	maxheightHash := h.DataStore.DataContent.BlockHeaders[maxHeightIndex].Hash
+
+	bestBlockHash, err := chainhash.NewHashFromStr(maxheightHash)
+	if err != nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCDecodeHexString,
+			Message: "Unable to parse block hash stored",
+		}
+	}
+	return bestBlockHash, nil
 }
 
 // func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash) (*wire.MsgBlock, error) {
@@ -46,7 +54,7 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 // 	return in
 // }
 
-func (h *MockServerHandler) GetBlockCount() (int64, error) {
+func (h *MockServerHandler) GetBlockCount() (int32, error) {
 	// find the highest block height
 	maxHeight := h.DataStore.DataContent.BlockHeaders[0].Height
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
@@ -63,10 +71,17 @@ func (h *MockServerHandler) GetBlockCount() (int64, error) {
 // 	return in
 // }
 
-func (h *MockServerHandler) GetBlockHash(blockHeight int64) (*chainhash.Hash, error) {
+func (h *MockServerHandler) GetBlockHash(blockHeight int32) (*chainhash.Hash, error) {
 	// get chainHash of block with blockHeight
 	if blockHeader, ok := h.DataStore.BlockHeaderMap[blockHeight]; ok {
-		return &blockHeader.BlockHash, nil
+		blockHash, err := chainhash.NewHashFromStr(blockHeader.Hash)
+		if err != nil {
+			return nil, &btcjson.RPCError{
+				Code:    btcjson.ErrRPCDecodeHexString,
+				Message: "Unable to parse block hash stored",
+			}
+		}
+		return blockHash, nil
 	}
 
 	return nil, &btcjson.RPCError{
@@ -75,10 +90,10 @@ func (h *MockServerHandler) GetBlockHash(blockHeight int64) (*chainhash.Hash, er
 	}
 }
 
-func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*BlockHeader, error) {
+func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error) {
 	// find the block with hash `blockHash`
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
-		if blockHeader.BlockHash.IsEqual(blockHash) {
+		if blockHeader.Hash == blockHash.String() {
 			return &blockHeader, nil
 		}
 	}

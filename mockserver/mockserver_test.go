@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ type Client struct {
 	GetBestBlockHash func() (*chainhash.Hash, error)
 	GetBlockCount    func() (int64, error)
 	GetBlockHash     func(blockHeight int64) (*chainhash.Hash, error)
-	GetBlockHeader   func(blockHash *chainhash.Hash) (*BlockHeader, error)
+	GetBlockHeader   func(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error)
 	GetTxOut         func(txHash *chainhash.Hash, index uint32, mempool bool) (*GetTxOutResult, error)
 }
 
@@ -86,32 +87,22 @@ func TestMockRPCServer(t *testing.T) {
 		blockHeader, err := client_handler.GetBlockHeader(blockHash)
 		assert.NoError(t, err)
 
-		actualBlockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444")
-		assert.NoError(t, err)
-		actualMerkleRoot, err := chainhash.NewHashFromStr("8aa673bc752f2851fd645d6a0a92917e967083007d9c1684f9423b100540673f")
-		assert.NoError(t, err)
-		actualChainWork, err := chainhash.NewHashFromStr("0000000000000000000000000000000000000000000000000000000800080008")
-		assert.NoError(t, err)
-		actualPrevBlock, err := chainhash.NewHashFromStr("000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d")
-		assert.NoError(t, err)
-		actualNextBlock, err := chainhash.NewHashFromStr("00000000408c48f847aa786c2268fc3e6ec2af68e8468a34a28c61b7f1de0dc6")
-		assert.NoError(t, err)
-		actualBlockHeader := &BlockHeader{
-			BlockHash:     *actualBlockHash,
+		actualBlockHeader := &btcjson.GetBlockHeaderVerboseResult{
+			Hash:          "0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444",
 			Confirmations: 867297,
 			Height:        7,
 			Version:       1,
 			VersionHex:    "00000001",
-			MerkleRoot:    *actualMerkleRoot,
+			MerkleRoot:    "8aa673bc752f2851fd645d6a0a92917e967083007d9c1684f9423b100540673f",
 			Time:          1231472369,
-			MedianTime:    1231470988,
-			Nonce:         2258412857,
-			Bits:          "1d00ffff",
-			Difficulty:    1,
-			ChainWork:     *actualChainWork,
-			NumberTx:      1,
-			PrevBlock:     *actualPrevBlock,
-			NextBlock:     *actualNextBlock,
+			// MedianTime:    1231470988,
+			Nonce:      2258412857,
+			Bits:       "1d00ffff",
+			Difficulty: 1,
+			// ChainWork:     *actualChainWork,
+			// NumberTx:      1,
+			PreviousHash: "000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d",
+			NextHash:     "00000000408c48f847aa786c2268fc3e6ec2af68e8468a34a28c61b7f1de0dc6",
 		}
 
 		assert.Equal(t, actualBlockHeader, blockHeader)

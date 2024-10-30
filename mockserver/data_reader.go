@@ -6,27 +6,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 )
-
-type BlockHeader struct {
-	BlockHash     chainhash.Hash `json:"hash"`
-	Confirmations uint32         `json:"confirmations"`
-	Height        int64          `json:"height"`
-	Version       int32          `json:"version"`
-	VersionHex    string         `json:"versionHex"`
-	MerkleRoot    chainhash.Hash `json:"merkleroot"`
-	Time          uint32         `json:"time"`
-	MedianTime    uint32         `json:"mediantime"`
-	Nonce         uint32         `json:"nonce"`
-	Bits          string         `json:"bits"`
-	Difficulty    uint32         `json:"difficulty"`
-	ChainWork     chainhash.Hash `json:"chainwork"`
-	NumberTx      uint32         `json:"nTx"`
-
-	PrevBlock chainhash.Hash `json:"previousblockhash"`
-	NextBlock chainhash.Hash `json:"nextblockhash"`
-}
 
 type Transaction struct {
 	TxId          chainhash.Hash `json:"txid"`
@@ -86,14 +68,14 @@ type ScriptPubKeyResult struct {
 }
 
 type DataContent struct {
-	BlockHeaders []BlockHeader `json:"block_headers"`
-	Transactions []Transaction `json:"transactions"`
+	BlockHeaders []btcjson.GetBlockHeaderVerboseResult `json:"block_headers"`
+	Transactions []Transaction                         `json:"transactions"`
 }
 
 type DataStore struct {
 	DataContent DataContent
 
-	BlockHeaderMap map[int64]BlockHeader
+	BlockHeaderMap map[int32]btcjson.GetBlockHeaderVerboseResult
 	TransactionMap map[string]Transaction
 }
 
@@ -117,7 +99,7 @@ func (d *DataStore) ReadJson(jsonFilePath string) {
 	}
 
 	// populate the BlockHeaderMap from dataContent
-	d.BlockHeaderMap = make(map[int64]BlockHeader)
+	d.BlockHeaderMap = make(map[int32]btcjson.GetBlockHeaderVerboseResult)
 	for _, blockHeader := range dataContent.BlockHeaders {
 		d.BlockHeaderMap[blockHeader.Height] = blockHeader
 	}
