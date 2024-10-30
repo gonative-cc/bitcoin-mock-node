@@ -11,12 +11,13 @@ import (
 )
 
 type Client struct {
-	Ping             func(int) int
-	GetBestBlockHash func() (*chainhash.Hash, error)
-	GetBlockCount    func() (int64, error)
-	GetBlockHash     func(blockHeight int64) (*chainhash.Hash, error)
-	GetBlockHeader   func(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error)
-	GetTxOut         func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
+	Ping              func(int) int
+	GetBestBlockHash  func() (*chainhash.Hash, error)
+	GetBlockCount     func() (int64, error)
+	GetBlockHash      func(blockHeight int64) (*chainhash.Hash, error)
+	GetBlockHeader    func(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error)
+	GetTxOut          func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
+	GetRawTransaction func(txHash *chainhash.Hash, verbose bool, blockHash *chainhash.Hash) (*btcjson.TxRawResult, error)
 }
 
 // setup initializes the test instance and sets up common resources.
@@ -152,6 +153,57 @@ func TestMockRPCServer(t *testing.T) {
 		assert.NoError(t, err)
 
 		_, err = client_handler.GetTxOut(txnHash, 1, false)
+		assert.Error(t, err)
+	})
+
+	t.Run("GetRawTransaction", func(t *testing.T) {
+		txnHash, err := chainhash.NewHashFromStr("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098")
+		assert.NoError(t, err)
+
+		rawTx, err := client_handler.GetRawTransaction(txnHash, true, nil)
+		assert.NoError(t, err)
+
+		actualRawTx := &btcjson.TxRawResult{
+			Txid:     "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098",
+			Hash:     "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098",
+			Version:  1,
+			Size:     134,
+			Vsize:    134,
+			Weight:   536,
+			LockTime: 0,
+			Vin: []btcjson.Vin{
+				{
+					Coinbase: "04ffff001d0104",
+					Sequence: 4294967295,
+				},
+			},
+			Vout: []btcjson.Vout{
+				{
+					Value: 50,
+					N:     0,
+					ScriptPubKey: btcjson.ScriptPubKeyResult{
+						Asm:  "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee OP_CHECKSIG",
+						Hex:  "410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac",
+						Type: "pubkey",
+					},
+				},
+			},
+			Hex:           "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0104ffffffff0100f2052a0100000043410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac00000000",
+			BlockHash:     "00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048",
+			Confirmations: 867743,
+			Time:          1231469665,
+			Blocktime:     1231469665,
+		}
+		assert.NoError(t, err)
+
+		assert.Equal(t, actualRawTx, rawTx)
+	})
+
+	t.Run("GetRawTransactionIncorrectHash", func(t *testing.T) {
+		txnHash, err := chainhash.NewHashFromStr("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512099")
+		assert.NoError(t, err)
+
+		_, err = client_handler.GetRawTransaction(txnHash, true, nil)
 		assert.Error(t, err)
 	})
 }

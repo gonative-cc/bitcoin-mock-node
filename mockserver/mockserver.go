@@ -79,7 +79,9 @@ func (h *MockServerHandler) GetBlockHash(blockHeight int32) (*chainhash.Hash, er
 	}
 }
 
-func (h *MockServerHandler) GetBlockHeader(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error) {
+func (h *MockServerHandler) GetBlockHeader(
+	blockHash *chainhash.Hash,
+) (*btcjson.GetBlockHeaderVerboseResult, error) {
 	// find the block with hash `blockHash`
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
 		if blockHeader.Hash == blockHash.String() {
@@ -125,6 +127,22 @@ func (h *MockServerHandler) GetTxOut(
 		btcjson.ErrRPCNoTxInfo,
 		fmt.Sprintf("No information available about transaction %v", txHash),
 	)
+}
+
+func (h *MockServerHandler) GetRawTransaction(
+	txHash *chainhash.Hash,
+	verbose bool,
+	blockHash *chainhash.Hash,
+) (*btcjson.TxRawResult, error) {
+	// find the transaction with hash `txHash`
+	if transaction, ok := h.DataStore.TransactionMap[txHash.String()]; ok {
+		return &transaction, nil
+	}
+
+	return nil, &btcjson.RPCError{
+		Code:    btcjson.ErrRPCRawTxString,
+		Message: "Transaction not found",
+	}
 }
 
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
