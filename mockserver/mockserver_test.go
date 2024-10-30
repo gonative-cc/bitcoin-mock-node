@@ -148,4 +148,20 @@ func TestMockRPCServer(t *testing.T) {
 
 		assert.Equal(t, actualTxOut, txOut)
 	})
+
+	t.Run("GetTxOutIncorrectHash", func(t *testing.T) {
+		txnHash, err := chainhash.NewHashFromStr("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512099")
+		assert.NoError(t, err)
+
+		_, err = client_handler.GetTxOut(txnHash, 0, false)
+		assert.Error(t, err)
+	})
+
+	t.Run("GetTxOutOutOfIndex", func(t *testing.T) {
+		txnHash, err := chainhash.NewHashFromStr("0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098")
+		assert.NoError(t, err)
+
+		_, err = client_handler.GetTxOut(txnHash, 1, false)
+		assert.Error(t, err)
+	})
 }
