@@ -88,6 +88,7 @@ func TestMockRPCServer(t *testing.T) {
 		blockHeader, err := client_handler.GetBlockHeader(blockHash, true)
 		assert.NoError(t, err)
 
+		// https://learnmeabitcoin.com/explorer/block/0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444
 		actualBlockHeader := &btcjson.GetBlockHeaderVerboseResult{
 			Hash:          "0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444",
 			Confirmations: 867297,
@@ -124,6 +125,7 @@ func TestMockRPCServer(t *testing.T) {
 		txOut, err := client_handler.GetTxOut(txnHash, 0, false)
 		assert.NoError(t, err)
 
+		// https://learnmeabitcoin.com/explorer/tx/0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098
 		actualTxOut := &btcjson.GetTxOutResult{
 			BestBlock:     "",
 			Confirmations: 867743,
@@ -163,6 +165,7 @@ func TestMockRPCServer(t *testing.T) {
 		rawTx, err := client_handler.GetRawTransaction(txnHash, true, nil)
 		assert.NoError(t, err)
 
+		// https://learnmeabitcoin.com/explorer/tx/0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098
 		actualRawTx := &btcjson.TxRawResult{
 			Txid:     "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098",
 			Hash:     "0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098",
