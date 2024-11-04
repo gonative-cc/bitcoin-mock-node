@@ -15,7 +15,7 @@ type Client struct {
 	GetBestBlockHash  func() (*chainhash.Hash, error)
 	GetBlockCount     func() (int64, error)
 	GetBlockHash      func(blockHeight int64) (*chainhash.Hash, error)
-	GetBlockHeader    func(blockHash *chainhash.Hash) (*btcjson.GetBlockHeaderVerboseResult, error)
+	GetBlockHeader    func(blockHash *chainhash.Hash, verbose bool) (*btcjson.GetBlockHeaderVerboseResult, error)
 	GetTxOut          func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
 	GetRawTransaction func(txHash *chainhash.Hash, verbose bool, blockHash *chainhash.Hash) (*btcjson.TxRawResult, error)
 }
@@ -85,7 +85,7 @@ func TestMockRPCServer(t *testing.T) {
 		blockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444")
 		assert.NoError(t, err)
 
-		blockHeader, err := client_handler.GetBlockHeader(blockHash)
+		blockHeader, err := client_handler.GetBlockHeader(blockHash, true)
 		assert.NoError(t, err)
 
 		actualBlockHeader := &btcjson.GetBlockHeaderVerboseResult{
@@ -113,7 +113,7 @@ func TestMockRPCServer(t *testing.T) {
 		blockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89222")
 		assert.NoError(t, err)
 
-		_, err = client_handler.GetBlockHeader(blockHash)
+		_, err = client_handler.GetBlockHeader(blockHash, true)
 		assert.Error(t, err)
 	})
 

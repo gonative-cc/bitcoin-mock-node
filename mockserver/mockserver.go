@@ -81,6 +81,7 @@ func (h *MockServerHandler) GetBlockHash(blockHeight int32) (*chainhash.Hash, er
 
 func (h *MockServerHandler) GetBlockHeader(
 	blockHash *chainhash.Hash,
+	verbose bool,
 ) (*btcjson.GetBlockHeaderVerboseResult, error) {
 	// find the block with hash `blockHash`
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
