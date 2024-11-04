@@ -7,27 +7,18 @@ import (
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/filecoin-project/go-jsonrpc"
+	"github.com/gonative-cc/btc-mock-node/client"
 	"github.com/stretchr/testify/assert"
 )
 
-type Client struct {
-	Ping              func(int) int
-	GetBestBlockHash  func() (*chainhash.Hash, error)
-	GetBlockCount     func() (int64, error)
-	GetBlockHash      func(blockHeight int64) (*chainhash.Hash, error)
-	GetBlockHeader    func(blockHash *chainhash.Hash, verbose bool) (*btcjson.GetBlockHeaderVerboseResult, error)
-	GetTxOut          func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
-	GetRawTransaction func(txHash *chainhash.Hash, verbose bool, blockHash *chainhash.Hash) (*btcjson.TxRawResult, error)
-}
-
 // setup initializes the test instance and sets up common resources.
-func setup(t *testing.T) (Client, jsonrpc.ClientCloser) {
+func setup(t *testing.T) (client.Client, jsonrpc.ClientCloser) {
 	mockService := NewMockRPCServer()
 
 	t.Logf("mock json-rpc server listening on: %s", mockService.URL)
 
 	ctx := context.Background()
-	client_handler := Client{}
+	client_handler := client.Client{}
 
 	close_handler, err := jsonrpc.NewClient(ctx, mockService.URL, "MockServerHandler", &client_handler, nil)
 	assert.NoError(t, err)
