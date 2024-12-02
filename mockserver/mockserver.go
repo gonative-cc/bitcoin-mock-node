@@ -159,6 +159,16 @@ func NewMockRPCServer(data_file_path string) *httptest.Server {
 	serverHandler := &MockServerHandler{}
 	rpcServer.Register("MockServerHandler", serverHandler)
 
+	// method aliases
+	rpcServer.AliasMethod("ping", "MockServerHandler.Ping")
+	rpcServer.AliasMethod("getbestblockhash", "MockServerHandler.GetBestBlockHash")
+	rpcServer.AliasMethod("getblockcount", "MockServerHandler.GetBlockCount")
+	rpcServer.AliasMethod("getblockhash", "MockServerHandler.GetBlockHash")
+	rpcServer.AliasMethod("getblockheader", "MockServerHandler.GetBlockHeader")
+	rpcServer.AliasMethod("gettxout", "MockServerHandler.GetTxOut")
+	rpcServer.AliasMethod("getrawtransaction", "MockServerHandler.GetRawTransaction")
+	rpcServer.AliasMethod("getnetworkinfo", "MockServerHandler.GetNetworkInfo")
+
 	// populate data from json data/ file
 	serverHandler.PopulateDataStore(data_file_path)
 
