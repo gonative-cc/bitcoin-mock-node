@@ -231,6 +231,7 @@ func NewMockRPCServer(data_file_path string) *httptest.Server {
 	// method aliases
 	rpcServer.AliasMethod("ping", "MockServerHandler.Ping")
 	rpcServer.AliasMethod("getbestblockhash", "MockServerHandler.GetBestBlockHash")
+	rpcServer.AliasMethod("getblock", "MockServerHandler.GetBlock")
 	rpcServer.AliasMethod("getblockcount", "MockServerHandler.GetBlockCount")
 	rpcServer.AliasMethod("getblockhash", "MockServerHandler.GetBlockHash")
 	rpcServer.AliasMethod("getblockheader", "MockServerHandler.GetBlockHeader")
