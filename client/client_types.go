@@ -14,4 +14,5 @@ type Client struct {
 	GetTxOut          func(txHash *chainhash.Hash, index uint32, mempool bool) (*btcjson.GetTxOutResult, error)
 	GetRawTransaction func(txHash *chainhash.Hash, verbose bool, blockHash *chainhash.Hash) (*btcjson.TxRawResult, error)
 	GetNetworkInfo    func() (*btcjson.GetNetworkInfoResult, error)
+	GetInfo           func() (*btcjson.InfoWalletResult, error)
 }

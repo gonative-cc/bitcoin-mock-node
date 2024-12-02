@@ -150,6 +150,14 @@ func (h *MockServerHandler) GetNetworkInfo() (*btcjson.GetNetworkInfoResult, err
 	return &h.DataStore.DataContent.NetworkInfo, nil
 }
 
+// GetInfo returns miscellaneous info regarding the RPC server.  The returned
+// info object may be void of wallet information if the remote server does
+// not include wallet functionality.
+// NOTE: Returns nil value as it is only usedto show that it's a btd backend to relayer
+func (h *MockServerHandler) GetInfo() (*btcjson.InfoWalletResult, error) {
+	return nil, nil
+}
+
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
 func NewMockRPCServer(data_file_path string) *httptest.Server {
 	// Create a new RPC server
@@ -168,6 +176,7 @@ func NewMockRPCServer(data_file_path string) *httptest.Server {
 	rpcServer.AliasMethod("gettxout", "MockServerHandler.GetTxOut")
 	rpcServer.AliasMethod("getrawtransaction", "MockServerHandler.GetRawTransaction")
 	rpcServer.AliasMethod("getnetworkinfo", "MockServerHandler.GetNetworkInfo")
+	rpcServer.AliasMethod("getinfo", "MockServerHandler.GetInfo")
 
 	// populate data from json data/ file
 	serverHandler.PopulateDataStore(data_file_path)
