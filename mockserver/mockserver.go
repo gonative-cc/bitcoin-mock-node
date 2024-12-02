@@ -3,9 +3,12 @@ package mockserver
 import (
 	"fmt"
 	"net/http/httptest"
+	"strconv"
+	"time"
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/filecoin-project/go-jsonrpc"
 )
 
@@ -46,9 +49,67 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 	return bestBlockHash, nil
 }
 
-// func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash) (*wire.MsgBlock, error) {
-// 	return in
-// }
+func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash) (*wire.MsgBlock, error) {
+	var foundBlockHeader *btcjson.GetBlockHeaderVerboseResult = nil
+	// find the block with hash `blockHash`
+	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+		if blockHeader.Hash == blockHash.String() {
+			// return &blockHeader, nil
+			foundBlockHeader = &blockHeader
+		}
+	}
+
+	if foundBlockHeader == nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCBlockNotFound,
+			Message: "Block not found",
+		}
+	}
+
+	PrevBlock, err := chainhash.NewHashFromStr(foundBlockHeader.PreviousHash)
+	if err != nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCDecodeHexString,
+			Message: "Unable to parse block hash stored",
+		}
+	}
+
+	MerkleRoot, err := chainhash.NewHashFromStr(foundBlockHeader.MerkleRoot)
+	if err != nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCDecodeHexString,
+			Message: "Unable to parse block hash stored",
+		}
+	}
+
+	Bits, err := strconv.ParseUint(foundBlockHeader.Bits, 10, 32)
+	if err != nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCDecodeHexString,
+			Message: "Unable to parse block hash stored",
+		}
+	}
+
+	// var foundBlockTxs []*wire.MsgTx
+	// // find transactions with blockHash
+	// for _, tx := range h.DataStore.DataContent.Transactions {
+	// 	if tx.BlockHash == blockHash.String() {
+	// 		foundBlockTxs = append(foundBlockTxs, tx)
+	// 	}
+	// }
+
+	return &wire.MsgBlock{
+		Header: wire.BlockHeader{
+			Version:    foundBlockHeader.Version,
+			PrevBlock:  *PrevBlock,
+			MerkleRoot: *MerkleRoot,
+			Timestamp:  time.Unix(foundBlockHeader.Time, 0),
+			Bits:       uint32(Bits),
+			Nonce:      uint32(foundBlockHeader.Nonce),
+		},
+		Transactions: nil,
+	}, nil
+}
 
 func (h *MockServerHandler) GetBlockCount() (int32, error) {
 	// find the highest block height
