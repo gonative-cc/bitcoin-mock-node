@@ -13,7 +13,7 @@ import (
 
 // setup initializes the test instance and sets up common resources.
 func setup(t *testing.T) (client.Client, jsonrpc.ClientCloser) {
-	mockService := NewMockRPCServer()
+	mockService := NewMockRPCServer("../data/mainnet_oldest_blocks.json")
 
 	t.Logf("mock json-rpc server listening on: %s", mockService.URL)
 

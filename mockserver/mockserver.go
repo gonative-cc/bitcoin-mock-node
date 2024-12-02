@@ -14,8 +14,8 @@ type MockServerHandler struct {
 	DataStore DataStore
 }
 
-func (h *MockServerHandler) PopulateDataStore() {
-	h.DataStore.ReadJson("../data/mainnet_oldest_blocks.json")
+func (h *MockServerHandler) PopulateDataStore(data_file_path string) {
+	h.DataStore.ReadJson(data_file_path)
 }
 
 func (h *MockServerHandler) Ping(in int) int {
@@ -147,7 +147,7 @@ func (h *MockServerHandler) GetRawTransaction(
 }
 
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
-func NewMockRPCServer() *httptest.Server {
+func NewMockRPCServer(data_file_path string) *httptest.Server {
 	// Create a new RPC server
 	rpcServer := jsonrpc.NewServer()
 
@@ -156,7 +156,7 @@ func NewMockRPCServer() *httptest.Server {
 	rpcServer.Register("MockServerHandler", serverHandler)
 
 	// populate data from json data/ file
-	serverHandler.PopulateDataStore()
+	serverHandler.PopulateDataStore(data_file_path)
 
 	// serve the API
 	testServ := httptest.NewServer(rpcServer)
