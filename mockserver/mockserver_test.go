@@ -200,4 +200,65 @@ func TestMockRPCServer(t *testing.T) {
 		_, err = client_handler.GetRawTransaction(txnHash, true, nil)
 		assert.Error(t, err)
 	})
+
+	t.Run("GetNetworkInfo", func(t *testing.T) {
+		networkInfo, err := client_handler.GetNetworkInfo()
+		assert.NoError(t, err)
+
+		actualNetworkInfo := &btcjson.GetNetworkInfoResult{
+			Version:         260000,
+			SubVersion:      "/Satoshi:26.0.0/",
+			ProtocolVersion: 70016,
+			LocalServices:   "0000000000000409",
+			LocalRelay:      true,
+			TimeOffset:      0,
+			Connections:     10,
+			ConnectionsIn:   0,
+			ConnectionsOut:  10,
+			NetworkActive:   true,
+			Networks: []btcjson.NetworksResult{
+				{
+					Name:                      "ipv4",
+					Limited:                   false,
+					Reachable:                 true,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "ipv6",
+					Limited:                   false,
+					Reachable:                 true,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "onion",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "i2p",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "cjdns",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+			},
+			RelayFee:       0.00001,
+			IncrementalFee: 0.00001,
+			LocalAddresses: []btcjson.LocalAddressesResult{},
+			Warnings:       "",
+		}
+
+		assert.Equal(t, actualNetworkInfo, networkInfo)
+	})
 }

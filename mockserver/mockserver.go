@@ -146,6 +146,10 @@ func (h *MockServerHandler) GetRawTransaction(
 	}
 }
 
+func (h *MockServerHandler) GetNetworkInfo() (*btcjson.GetNetworkInfoResult, error) {
+	return &h.DataStore.DataContent.NetworkInfo, nil
+}
+
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
 func NewMockRPCServer(data_file_path string) *httptest.Server {
 	// Create a new RPC server

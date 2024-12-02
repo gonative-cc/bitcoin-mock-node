@@ -12,6 +12,7 @@ import (
 type DataContent struct {
 	BlockHeaders []btcjson.GetBlockHeaderVerboseResult `json:"block_headers"`
 	Transactions []btcjson.TxRawResult                 `json:"transactions"`
+	NetworkInfo  btcjson.GetNetworkInfoResult          `json:"network_info"`
 }
 
 type DataStore struct {
