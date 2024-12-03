@@ -9,7 +9,7 @@ import (
 type Client struct {
 	Ping              func(int) int
 	GetBestBlockHash  func() (*chainhash.Hash, error)
-	GetBlock          func(blockHash *chainhash.Hash) (*wire.MsgBlock, error)
+	GetBlock          func(blockHash *chainhash.Hash, verbosity *int) (*wire.MsgBlock, error)
 	GetBlockCount     func() (int64, error)
 	GetBlockHash      func(blockHeight int64) (*chainhash.Hash, error)
 	GetBlockHeader    func(blockHash *chainhash.Hash, verbose bool) (*btcjson.GetBlockHeaderVerboseResult, error)

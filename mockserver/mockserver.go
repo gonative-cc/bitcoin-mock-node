@@ -49,7 +49,10 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 	return bestBlockHash, nil
 }
 
-func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash) (*wire.MsgBlock, error) {
+func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash, verbosity *int) (*wire.MsgBlock, error) {
+	// NOTE: verbosity is added to be compatible with the relayer
+	// the method always assumes verbosity=1
+
 	var foundBlockHeader *btcjson.GetBlockHeaderVerboseResult = nil
 	// find the block with hash `blockHash`
 	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
