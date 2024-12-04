@@ -57,7 +57,6 @@ func (h *MockServerHandler) GetBlock(
 	// find the block with hash `blockHash`
 	if blockHeader, ok := h.DataStore.BlockHeaderBlockHashMap[blockHash.String()]; ok {
 		if blockHeader.Hash == blockHash.String() {
-			// return &blockHeader, nil
 			foundBlockHeader = &blockHeader
 		}
 	}

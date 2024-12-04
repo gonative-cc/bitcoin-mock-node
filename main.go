@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/filecoin-project/go-jsonrpc"
+	"github.com/rs/zerolog/log"
 
 	"github.com/gonative-cc/btc-mock-node/client"
 	"github.com/gonative-cc/btc-mock-node/mockserver"
@@ -16,7 +16,7 @@ import (
 func main() {
 	mockService := mockserver.NewMockRPCServer("./data/mainnet_oldest_blocks.json")
 
-	fmt.Printf("Mock RPC server running at: %s\n", mockService.URL)
+	log.Info().Msgf("Mock RPC server running at: %s", mockService.URL)
 
 	ctx := context.Background()
 	client_handler := client.Client{}
