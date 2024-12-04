@@ -20,7 +20,6 @@ func main() {
 
 	ctx := context.Background()
 	client_handler := client.Client{}
-
 	close_handler, err := jsonrpc.NewClient(ctx, mockService.URL, "MockServerHandler", &client_handler, nil)
 	if err != nil {
 		panic(err)
