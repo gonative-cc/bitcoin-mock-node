@@ -33,6 +33,5 @@ func main() {
 	// Wait for interrupt signal
 	<-sigChan
 
-	// Call close handler on interrupt
 	close_handler()
 }
