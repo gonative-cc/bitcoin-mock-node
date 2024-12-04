@@ -68,13 +68,13 @@ func (h *MockServerHandler) GetBlock(
 		}
 	}
 
-	// var foundBlockTxs []*wire.MsgTx
-	// // find transactions with blockHash
-	// for _, tx := range h.DataStore.DataContent.Transactions {
-	// 	if tx.BlockHash == blockHash.String() {
-	// 		foundBlockTxs = append(foundBlockTxs, tx)
-	// 	}
-	// }
+	var foundBlockTxsIds []string
+	// find transactions with blockHash
+	for _, tx := range h.DataStore.DataContent.Transactions {
+		if tx.BlockHash == blockHash.String() {
+			foundBlockTxsIds = append(foundBlockTxsIds, tx.Hex)
+		}
+	}
 
 	return &btcjson.GetBlockVerboseResult{
 		Hash:          foundBlockHeader.Hash,
@@ -86,7 +86,7 @@ func (h *MockServerHandler) GetBlock(
 		Version:       foundBlockHeader.Version,
 		VersionHex:    foundBlockHeader.VersionHex,
 		MerkleRoot:    foundBlockHeader.MerkleRoot,
-		Tx:            nil,
+		Tx:            foundBlockTxsIds,
 		Time:          foundBlockHeader.Time,
 		Nonce:         uint32(foundBlockHeader.Nonce),
 		Bits:          foundBlockHeader.Bits,
@@ -94,18 +94,6 @@ func (h *MockServerHandler) GetBlock(
 		PreviousHash:  foundBlockHeader.PreviousHash,
 		NextHash:      foundBlockHeader.NextHash,
 	}, nil
-
-	// return &wire.MsgBlock{
-	// 	Header: wire.BlockHeader{
-	// 		Version:    foundBlockHeader.Version,
-	// 		PrevBlock:  *PrevBlock,
-	// 		MerkleRoot: *MerkleRoot,
-	// 		Timestamp:  time.Unix(foundBlockHeader.Time, 0),
-	// 		Bits:       uint32(Bits),
-	// 		Nonce:      uint32(foundBlockHeader.Nonce),
-	// 	},
-	// 	Transactions: nil,
-	// }, nil
 }
 
 func (h *MockServerHandler) GetBlockCount() (int32, error) {
