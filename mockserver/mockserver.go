@@ -14,8 +14,8 @@ type MockServerHandler struct {
 	DataStore DataStore
 }
 
-func (h *MockServerHandler) PopulateDataStore(data_file_path string) {
-	h.DataStore.ReadJson(data_file_path)
+func (h *MockServerHandler) PopulateDataStore(dataFilePath string) {
+	h.DataStore.ReadJson(dataFilePath)
 }
 
 func (h *MockServerHandler) Ping(in int) int {
@@ -55,7 +55,7 @@ func (h *MockServerHandler) GetBlock(
 
 	var foundBlockHeader *btcjson.GetBlockHeaderVerboseResult = nil
 	// find the block with hash `blockHash`
-	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+	if blockHeader, ok := h.DataStore.BlockHeaderBlockHashMap[blockHash.String()]; ok {
 		if blockHeader.Hash == blockHash.String() {
 			// return &blockHeader, nil
 			foundBlockHeader = &blockHeader
@@ -143,7 +143,7 @@ func (h *MockServerHandler) GetBlockHeader(
 	verbose bool,
 ) (*btcjson.GetBlockHeaderVerboseResult, error) {
 	// find the block with hash `blockHash`
-	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+	if blockHeader, ok := h.DataStore.BlockHeaderBlockHashMap[blockHash.String()]; ok {
 		if blockHeader.Hash == blockHash.String() {
 			return &blockHeader, nil
 		}
@@ -218,7 +218,7 @@ func (h *MockServerHandler) GetInfo() (*btcjson.InfoWalletResult, error) {
 }
 
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
-func NewMockRPCServer(data_file_path string) *httptest.Server {
+func NewMockRPCServer(dataFilePath string) *httptest.Server {
 	// Create a new RPC server
 	rpcServer := jsonrpc.NewServer()
 
@@ -239,7 +239,7 @@ func NewMockRPCServer(data_file_path string) *httptest.Server {
 	rpcServer.AliasMethod("getinfo", "MockServerHandler.GetInfo")
 
 	// populate data from json data/ file
-	serverHandler.PopulateDataStore(data_file_path)
+	serverHandler.PopulateDataStore(dataFilePath)
 
 	// serve the API
 	testServ := httptest.NewServer(rpcServer)

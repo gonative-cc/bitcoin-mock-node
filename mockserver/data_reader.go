@@ -18,8 +18,9 @@ type DataContent struct {
 type DataStore struct {
 	DataContent DataContent
 
-	BlockHeaderMap map[int32]btcjson.GetBlockHeaderVerboseResult
-	TransactionMap map[string]btcjson.TxRawResult
+	BlockHeaderMap          map[int32]btcjson.GetBlockHeaderVerboseResult
+	BlockHeaderBlockHashMap map[string]btcjson.GetBlockHeaderVerboseResult
+	TransactionMap          map[string]btcjson.TxRawResult
 }
 
 func (d *DataStore) ReadJson(jsonFilePath string) {
@@ -45,6 +46,12 @@ func (d *DataStore) ReadJson(jsonFilePath string) {
 	d.BlockHeaderMap = make(map[int32]btcjson.GetBlockHeaderVerboseResult)
 	for _, blockHeader := range dataContent.BlockHeaders {
 		d.BlockHeaderMap[blockHeader.Height] = blockHeader
+	}
+
+	// populate the BlockHeaderBlockHashMap from dataContent
+	d.BlockHeaderBlockHashMap = make(map[string]btcjson.GetBlockHeaderVerboseResult)
+	for _, blockHeader := range dataContent.BlockHeaders {
+		d.BlockHeaderBlockHashMap[blockHeader.Hash] = blockHeader
 	}
 
 	// populate the TransactionMap from dataContent
