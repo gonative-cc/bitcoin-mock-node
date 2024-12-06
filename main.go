@@ -14,7 +14,15 @@ import (
 )
 
 func main() {
-	mockService := mockserver.NewMockRPCServer("./data/mainnet_oldest_blocks.json")
+	// input path of json data file as cli argument
+	// example: ./data/mainnet_oldest_blocks.json
+	if len(os.Args) < 2 {
+		log.Error().Msg("Missing transaction file path")
+		return
+	}
+	txFilePath := os.Args[1]
+
+	mockService := mockserver.NewMockRPCServer(txFilePath)
 
 	log.Info().Msgf("Mock RPC server running at: %s", mockService.URL)
 
