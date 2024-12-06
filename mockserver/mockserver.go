@@ -14,8 +14,8 @@ type MockServerHandler struct {
 	DataStore DataStore
 }
 
-func (h *MockServerHandler) PopulateDataStore() {
-	h.DataStore.ReadJson("../data/mainnet_oldest_blocks.json")
+func (h *MockServerHandler) PopulateDataStore(dataFilePath string) {
+	h.DataStore.ReadJson(dataFilePath)
 }
 
 func (h *MockServerHandler) Ping(in int) int {
@@ -46,9 +46,55 @@ func (h *MockServerHandler) GetBestBlockHash() (*chainhash.Hash, error) {
 	return bestBlockHash, nil
 }
 
-// func (h *MockServerHandler) GetBlock(blockHash *chainhash.Hash) (*wire.MsgBlock, error) {
-// 	return in
-// }
+func (h *MockServerHandler) GetBlock(
+	blockHash *chainhash.Hash,
+	verbosity *int,
+) (*btcjson.GetBlockVerboseResult, error) {
+	// NOTE: verbosity is added to be compatible with the relayer
+	// the method always assumes verbosity=1
+
+	var foundBlockHeader *btcjson.GetBlockHeaderVerboseResult = nil
+	// find the block with hash `blockHash`
+	if blockHeader, ok := h.DataStore.BlockHeaderBlockHashMap[blockHash.String()]; ok {
+		if blockHeader.Hash == blockHash.String() {
+			foundBlockHeader = &blockHeader
+		}
+	}
+
+	if foundBlockHeader == nil {
+		return nil, &btcjson.RPCError{
+			Code:    btcjson.ErrRPCBlockNotFound,
+			Message: "Block not found",
+		}
+	}
+
+	var foundBlockTxsIds []string
+	// find transactions with blockHash
+	for _, tx := range h.DataStore.DataContent.Transactions {
+		if tx.BlockHash == blockHash.String() {
+			foundBlockTxsIds = append(foundBlockTxsIds, tx.Hex)
+		}
+	}
+
+	return &btcjson.GetBlockVerboseResult{
+		Hash:          foundBlockHeader.Hash,
+		Confirmations: foundBlockHeader.Confirmations,
+		StrippedSize:  0, // placeholder
+		Size:          0, // placeholder
+		Weight:        0, // placeholder
+		Height:        int64(foundBlockHeader.Height),
+		Version:       foundBlockHeader.Version,
+		VersionHex:    foundBlockHeader.VersionHex,
+		MerkleRoot:    foundBlockHeader.MerkleRoot,
+		Tx:            foundBlockTxsIds,
+		Time:          foundBlockHeader.Time,
+		Nonce:         uint32(foundBlockHeader.Nonce),
+		Bits:          foundBlockHeader.Bits,
+		Difficulty:    foundBlockHeader.Difficulty,
+		PreviousHash:  foundBlockHeader.PreviousHash,
+		NextHash:      foundBlockHeader.NextHash,
+	}, nil
+}
 
 func (h *MockServerHandler) GetBlockCount() (int32, error) {
 	// find the highest block height
@@ -84,7 +130,7 @@ func (h *MockServerHandler) GetBlockHeader(
 	verbose bool,
 ) (*btcjson.GetBlockHeaderVerboseResult, error) {
 	// find the block with hash `blockHash`
-	for _, blockHeader := range h.DataStore.DataContent.BlockHeaders {
+	if blockHeader, ok := h.DataStore.BlockHeaderBlockHashMap[blockHash.String()]; ok {
 		if blockHeader.Hash == blockHash.String() {
 			return &blockHeader, nil
 		}
@@ -146,8 +192,20 @@ func (h *MockServerHandler) GetRawTransaction(
 	}
 }
 
+func (h *MockServerHandler) GetNetworkInfo() (*btcjson.GetNetworkInfoResult, error) {
+	return &h.DataStore.DataContent.NetworkInfo, nil
+}
+
+// GetInfo returns miscellaneous info regarding the RPC server.  The returned
+// info object may be void of wallet information if the remote server does
+// not include wallet functionality.
+// NOTE: Returns nil value as it is only usedto show that it's a btd backend to relayer
+func (h *MockServerHandler) GetInfo() (*btcjson.InfoWalletResult, error) {
+	return nil, nil
+}
+
 // NewMockRPCServer creates a new instance of the rpcServer and starts listening
-func NewMockRPCServer() *httptest.Server {
+func NewMockRPCServer(dataFilePath string) *httptest.Server {
 	// Create a new RPC server
 	rpcServer := jsonrpc.NewServer()
 
@@ -155,8 +213,20 @@ func NewMockRPCServer() *httptest.Server {
 	serverHandler := &MockServerHandler{}
 	rpcServer.Register("MockServerHandler", serverHandler)
 
+	// method aliases
+	rpcServer.AliasMethod("ping", "MockServerHandler.Ping")
+	rpcServer.AliasMethod("getbestblockhash", "MockServerHandler.GetBestBlockHash")
+	rpcServer.AliasMethod("getblock", "MockServerHandler.GetBlock")
+	rpcServer.AliasMethod("getblockcount", "MockServerHandler.GetBlockCount")
+	rpcServer.AliasMethod("getblockhash", "MockServerHandler.GetBlockHash")
+	rpcServer.AliasMethod("getblockheader", "MockServerHandler.GetBlockHeader")
+	rpcServer.AliasMethod("gettxout", "MockServerHandler.GetTxOut")
+	rpcServer.AliasMethod("getrawtransaction", "MockServerHandler.GetRawTransaction")
+	rpcServer.AliasMethod("getnetworkinfo", "MockServerHandler.GetNetworkInfo")
+	rpcServer.AliasMethod("getinfo", "MockServerHandler.GetInfo")
+
 	// populate data from json data/ file
-	serverHandler.PopulateDataStore()
+	serverHandler.PopulateDataStore(dataFilePath)
 
 	// serve the API
 	testServ := httptest.NewServer(rpcServer)

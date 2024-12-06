@@ -508,5 +508,63 @@
             "time": 1231473952,
             "blocktime": 1231473952
         }
-    ]
+    ],
+    "network_info": {
+        "version": 260000,
+        "subversion": "/Satoshi:26.0.0/",
+        "protocolversion": 70016,
+        "localservices": "0000000000000409",
+        "localservicesnames": [
+            "NETWORK",
+            "WITNESS",
+            "NETWORK_LIMITED"
+        ],
+        "localrelay": true,
+        "timeoffset": 0,
+        "networkactive": true,
+        "connections": 10,
+        "connections_in": 0,
+        "connections_out": 10,
+        "networks": [
+            {
+                "name": "ipv4",
+                "limited": false,
+                "reachable": true,
+                "proxy": "",
+                "proxy_randomize_credentials": false
+            },
+            {
+                "name": "ipv6",
+                "limited": false,
+                "reachable": true,
+                "proxy": "",
+                "proxy_randomize_credentials": false
+            },
+            {
+                "name": "onion",
+                "limited": true,
+                "reachable": false,
+                "proxy": "",
+                "proxy_randomize_credentials": false
+            },
+            {
+                "name": "i2p",
+                "limited": true,
+                "reachable": false,
+                "proxy": "",
+                "proxy_randomize_credentials": false
+            },
+            {
+                "name": "cjdns",
+                "limited": true,
+                "reachable": false,
+                "proxy": "",
+                "proxy_randomize_credentials": false
+            }
+        ],
+        "relayfee": 0.00001,
+        "incrementalfee": 0.00001,
+        "localaddresses": [],
+        "warnings": ""
+    }
 }

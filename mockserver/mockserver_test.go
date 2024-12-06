@@ -13,7 +13,7 @@ import (
 
 // setup initializes the test instance and sets up common resources.
 func setup(t *testing.T) (client.Client, jsonrpc.ClientCloser) {
-	mockService := NewMockRPCServer()
+	mockService := NewMockRPCServer("../data/mainnet_oldest_blocks.json")
 
 	t.Logf("mock json-rpc server listening on: %s", mockService.URL)
 
@@ -48,6 +48,50 @@ func TestMockRPCServer(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, actualBlockHash, bestBlockHash)
+	})
+
+	t.Run("GetBlock", func(t *testing.T) {
+		blockHash, err := chainhash.NewHashFromStr("0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444")
+		assert.NoError(t, err)
+
+		verbosity := 1
+
+		block, err := client_handler.GetBlock(blockHash, &verbosity)
+		assert.NoError(t, err)
+
+		// https://learnmeabitcoin.com/explorer/block/0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444
+		actualBlock := &btcjson.GetBlockVerboseResult{
+			Hash:          "0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444",
+			Confirmations: 867297,
+			StrippedSize:  0, // placeholder
+			Size:          0, // placeholder
+			Weight:        0, // placeholder
+			Height:        7,
+			Version:       1,
+			VersionHex:    "00000001",
+			MerkleRoot:    "8aa673bc752f2851fd645d6a0a92917e967083007d9c1684f9423b100540673f",
+			Tx: []string{
+				"01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d012bffffffff0100f2052a01000000434104a59e64c774923d003fae7491b2a7f75d6b7aa3f35606a8ff1cf06cd3317d16a41aa16928b1df1f631f31f28c7da35d4edad3603adb2338c4d4dd268f31530555ac00000000",
+			},
+			Time:         1231472369,
+			Nonce:        2258412857,
+			Bits:         "1d00ffff",
+			Difficulty:   1,
+			PreviousHash: "000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d",
+			NextHash:     "00000000408c48f847aa786c2268fc3e6ec2af68e8468a34a28c61b7f1de0dc6",
+		}
+
+		assert.Equal(t, actualBlock, block)
+	})
+
+	t.Run("GetBlockError", func(t *testing.T) {
+		blockHash, err := chainhash.NewHashFromStr("000000002c05cc2e78923c34df87fd108b22221ac6076c18f3ade378a4d915e8")
+		assert.NoError(t, err)
+
+		verbosity := 1
+
+		_, err = client_handler.GetBlock(blockHash, &verbosity)
+		assert.Error(t, err)
 	})
 
 	t.Run("GetBlockCount", func(t *testing.T) {
@@ -199,5 +243,66 @@ func TestMockRPCServer(t *testing.T) {
 
 		_, err = client_handler.GetRawTransaction(txnHash, true, nil)
 		assert.Error(t, err)
+	})
+
+	t.Run("GetNetworkInfo", func(t *testing.T) {
+		networkInfo, err := client_handler.GetNetworkInfo()
+		assert.NoError(t, err)
+
+		actualNetworkInfo := &btcjson.GetNetworkInfoResult{
+			Version:         260000,
+			SubVersion:      "/Satoshi:26.0.0/",
+			ProtocolVersion: 70016,
+			LocalServices:   "0000000000000409",
+			LocalRelay:      true,
+			TimeOffset:      0,
+			Connections:     10,
+			ConnectionsIn:   0,
+			ConnectionsOut:  10,
+			NetworkActive:   true,
+			Networks: []btcjson.NetworksResult{
+				{
+					Name:                      "ipv4",
+					Limited:                   false,
+					Reachable:                 true,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "ipv6",
+					Limited:                   false,
+					Reachable:                 true,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "onion",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "i2p",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+				{
+					Name:                      "cjdns",
+					Limited:                   true,
+					Reachable:                 false,
+					Proxy:                     "",
+					ProxyRandomizeCredentials: false,
+				},
+			},
+			RelayFee:       0.00001,
+			IncrementalFee: 0.00001,
+			LocalAddresses: []btcjson.LocalAddressesResult{},
+			Warnings:       "",
+		}
+
+		assert.Equal(t, actualNetworkInfo, networkInfo)
 	})
 }
